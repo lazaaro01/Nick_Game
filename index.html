@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Caça Nick Touch</title>
+  <style>
+    body { text-align: center; font-family: sans-serif; margin-top: 50px; user-select: none; }
+    .slot-container { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+    .slot {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #000;
+      font-size: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #eee;
+      border-radius: 10px;
+    }
+    #touch-zone {
+      padding: 20px;
+      background-color: #ddd;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    p { font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <h1>🎰 Caça Nick - Toque para Jogar</h1>
+  <div class="slot-container">
+    <div class="slot" id="slot1">😎</div>
+    <div class="slot" id="slot2">🤖</div>
+    <div class="slot" id="slot3">👽</div>
+  </div>
+
+  <div id="touch-zone">
+    👉 <strong>Toque aqui para jogar / parar</strong>
+  </div>
+
+  <p id="message"></p>
+
+  <script>
+    const symbols = ["😎", "🤖", "👽", "👾", "🐵"];
+    let slots = [document.getElementById('slot1'), document.getElementById('slot2'), document.getElementById('slot3')];
+    let intervalIds = [];
+    let currentStop = 0;
+    let isRunning = false;
+
+    function getRandomSymbol() {
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    function startGame() {
+      document.getElementById("message").textContent = "";
+      currentStop = 0;
+      isRunning = true;
+      intervalIds = [];
+
+      slots.forEach((slot, index) => {
+        intervalIds[index] = setInterval(() => {
+          slot.textContent = getRandomSymbol();
+        }, 100);
+      });
+    }
+
+    function stopNextSlot() {
+      if (currentStop < 3) {
+        clearInterval(intervalIds[currentStop]);
+        currentStop++;
+        if (currentStop === 3) {
+          isRunning = false;
+          checkResult();
+        }
+      }
+    }
+
+    function checkResult() {
+      const [a, b, c] = slots.map(s => s.textContent);
+      if (a === b && b === c) {
+        document.getElementById("message").textContent = "🎉 Parabéns! Você ganhou um brinde!";
+      } else {
+        document.getElementById("message").textContent = "😢 Tente novamente!";
+      }
+    }
+
+    // TOQUE (touchstart)
+    document.getElementById("touch-zone").addEventListener("touchstart", () => {
+      if (!isRunning && currentStop === 0) {
+        startGame();
+      } else if (isRunning) {
+        stopNextSlot();
+      }
+    });
+
+    // Também funciona com clique (para desktop)
+    document.getElementById("touch-zone").addEventListener("click", () => {
+      if (!isRunning && currentStop === 0) {
+        startGame();
+      } else if (isRunning) {
+        stopNextSlot();
+      }
+    });
+  </script>
+
+</body>
+</html>
